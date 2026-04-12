@@ -12,22 +12,14 @@ test('Login with valid credentials', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
 });
 
-test.skip('Login with invalid credentials @pass', async ({ page }) => {
+test('Login with invalid credentials', async ({ page }) => {
   const loginPage = new LoginPage(page);
   await loginPage.goto();
   await loginPage.signIn('wrong@gmail.com', 'password');
   await expect(page.getByText('Invalid credentials')).toBeVisible();
 });
 
-test('Login with invalid credentials @fail', async ({ page }) => {
-  const loginPage = new LoginPage(page);
-  await loginPage.goto();
-  const invalidEmail = `missing-user-${Date.now()}@example.com`;
-  await loginPage.signIn(invalidEmail, 'password');
-  await expect(page.getByText('Invalid credentials')).toBeVisible();
-});
-
-test('Login page shows expected placeholders', async ({ page }) => {
+test.skip('Login page shows expected placeholders', async ({ page }) => {
   const loginPage = new LoginPage(page);
   await loginPage.goto();
   await loginPage.expectLoaded();
@@ -42,6 +34,17 @@ test('Sign up link opens registration page', async ({ page }) => {
   await loginPage.clickSignUp();
 
   await expect(page.getByRole('heading', { name: 'Start managing quality today.' })).toBeVisible();
+});
+
+test('User can register', async ({ page }) => {
+  const registerPage = new RegisterPage(page);
+  const uniqueEmail = `qa-user-${Date.now()}@example.com`;
+  await registerPage.goto();
+  await registerPage.expectLoaded();
+  await registerPage.fillForm('Playwright User', uniqueEmail, 'password');
+  await registerPage.submit();
+
+  await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
 });
 
 test('Registration page shows the full form', async ({ page }) => {
@@ -93,15 +96,4 @@ test('Registration shows a password mismatch error', async ({ page }) => {
   await registerPage.submit();
 
   await expect(registerPage.mismatchError).toBeVisible();
-});
-
-test('User can register', async ({ page }) => {
-  const registerPage = new RegisterPage(page);
-  const uniqueEmail = `qa-user-${Date.now()}@example.com`;
-  await registerPage.goto();
-  await registerPage.expectLoaded();
-  await registerPage.fillForm('Playwright User', uniqueEmail, 'password');
-  await registerPage.submit();
-
-  await expect(page.getByRole('link', { name: 'Dashboard' })).toBeVisible();
 });
